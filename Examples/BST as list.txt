@@ -1,0 +1,33 @@
+#lang racket
+
+(require racket/trace)
+
+(define (square x) (* x x))
+
+(define empty-tree null)
+
+(define (empty-tree? T)
+  (null? T))
+
+(define (datum T)
+  (car T))
+
+(define (left-subtree T)
+  (car (cdr T)))
+
+(define (right-subtree T)
+  (car (cdr (cdr T))))
+
+(define (contains T X)
+  (cond
+    ([empty-tree T] #f)
+    ([= X (datum T)] #t)
+    ([< X (datum T)] (contains (left-subtree T) X))
+    (else (contains (right-subtree T) X))))
+
+(trace-define (add-element X T)
+  (cond
+    ([empty-tree? T] (list X empty-tree empty-tree))
+    ([< X (datum T)] (list (datum T) (add-element X (left-subtree T)) (right-subtree T)))
+    ([> X (datum T)] (list (datum T) (left-subtree T) (add-element X (right-subtree T))))
+    (else T)))

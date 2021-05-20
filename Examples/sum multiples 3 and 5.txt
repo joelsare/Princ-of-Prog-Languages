@@ -1,0 +1,37 @@
+#lang racket
+
+;; Find the sum of all the multiples of 3 or 5 below 1000.
+
+;; If bound is a natural number, then (naturals bound) is the
+;; sequence of natural numbers from 0 up to and including bound.
+;; tail recursive modulo cons
+(define (naturals-v0 bound)
+  (cond
+    [(< bound 0) null]
+    [(= bound 0) (list 0)]
+    [else (cons bound (naturals (- bound 1)))]))
+
+(define (naturals bound)
+  (define (naturals-acc bound acc)
+    (cond
+      [(< bound 0) null]
+      [(= bound 0) acc]
+      [else (naturals-acc (- bound 1) (cons bound acc))]))
+  (naturals-acc bound null))
+
+;; if n is an integer, then (desired-multiple? n) is true if
+;; and only if n is a multiple of 3 or 5.
+(define (desired-multiple? n)
+  (or (= (modulo n 3) 0)
+      (= (modulo n 5) 0)))
+
+;; If xs is a list of integers, then (sum xs) is the sum of the
+;; elements of xs with multiplicity.
+(define (sum xs)
+  (define (sum-acc xs acc)
+    (cond
+      [(null? xs) acc]
+      [else (sum-acc (cdr xs) (+ (car xs) acc))]))
+  (sum-acc xs 0))
+
+(sum (filter desired-multiple? (naturals 999)))

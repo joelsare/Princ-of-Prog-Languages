@@ -1,0 +1,14 @@
+#lang racket
+
+;; Find the difference between the sum of the squares of the first one hundred natural
+;; numbers and the square of the sum.
+
+(define bound 100)
+
+(define (square x) (* x x))
+
+(define sum-of-squares (apply + (map square (range bound))))
+
+(define squares-of-sums (square (apply + (range bound))))
+
+(abs (- sum-of-squares squares-of-sums))

@@ -1,0 +1,99 @@
+% time
+
+#const max = 5.
+time(0..max).
+
+% blocks
+
+block(a;b;c;d;e).
+
+% location
+
+location(table).
+location(B) :- block(B).
+
+% fluents - what is true at a given moment of time
+
+inertial_fluent(on(B,L)) :-
+    block(B),
+    location(L),
+    B != L.
+
+fluent(clear(B)) :-
+    block(B).
+    
+fluent(occupied(B)) :-
+    block(B).
+    
+fluent(F) :- inertial_fluent(F).
+
+holds(occupied(B), T) :-
+    holds(on(A,B), T),
+    block(A), block(B), time(T).
+
+holds(clear(B), T) :-
+    not holds(occupied(B), T),
+    block(B), time(T).
+
+% initial state - what is true at time 0
+
+holds(on(a,table), 0).
+holds(on(c,table), 0).
+holds(on(d,table), 0).
+holds(on(e,a), 0).
+holds(on(b,c), 0).
+
+% actions
+
+action(move(B,L)) :-
+  block(B),
+  location(L),
+  B!=L.
+  
+% effects of actions
+
+holds(on(B,L), T + 1) :-
+    occurs(move(B,L), T),
+    action(move(B,L)),
+    fluent(on(B,L)),
+    time(T).
+    
+:- occurs(move(B,L), T), holds(occupied(B), T),
+    action(move(B,L)), time(T).
+
+% inertia axioms
+
+holds(F, T + 1) :-
+    holds(F, T),
+    not -holds(F, T + 1),
+	  inertial_fluent(F),
+	  time(T).
+
+-holds(F, T + 1) :-
+    -holds(F, T),
+    not holds(F, T + 1),
+	  inertial_fluent(F),
+	  time(T).
+	  
+% goal description
+
+goal(T) :-
+    holds(on(b,table)), T),
+    holds(on(e,table)), T),
+    holds(on(a,table)), T),
+    holds(on(d,e), T),
+    holds(on(c,d), T),
+    time(T).
+
+goal_met :-
+    goal(T), time(T).
+    
+%:- not goal_met.
+
+% action generation
+% "for everytime the goal is not generated, create an action"
+
+1{occurs(A,T) : action(A)}1 :- time(T), not goal(T).
+
+%#show holds/2.
+#show occurs/2.
